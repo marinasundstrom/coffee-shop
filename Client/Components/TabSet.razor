@@ -1,0 +1,62 @@
+﻿@using UIInterfaces
+
+<div @attributes="AdditionalAttributes">
+    <!-- Display the tab headers -->
+    <CascadingValue Value=this>
+        <ul class="nav nav-tabs">
+            @ChildContent
+
+            <li class="filler">
+                <a>&nbsp;</a>
+            </li>
+        </ul>
+    </CascadingValue>
+
+    <!-- Display body for only the active tab -->
+    <div class="nav-tabs-body">
+        @ActiveTab?.ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } = null!;
+
+    [Parameter]
+    public EventCallback<ITab> OnTabChanged { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IDictionary<string, object> AdditionalAttributes { get; set; } = null!;
+
+    public ITab? ActiveTab { get; private set; } = null!;
+
+    public bool AddTab(ITab tab)
+    {
+        if (ActiveTab == null)
+        {
+            SetActivateTab(tab);
+            return true;
+        }
+
+        return false;
+    }
+
+    public void RemoveTab(ITab tab)
+    {
+        if (ActiveTab == tab)
+        {
+            SetActivateTab(null);
+        }
+    }
+
+    public async void SetActivateTab(ITab? tab)
+    {
+        if (ActiveTab != tab)
+        {
+            ActiveTab = tab!;
+            StateHasChanged();
+
+            await OnTabChanged.InvokeAsync(tab!);
+        }
+    }
+}

@@ -1,0 +1,161 @@
+﻿@page "/admin/discounts/create"
+@layout AdminLayout
+@inject IDiscountsClient DiscountsClient
+@inject IProductsClient ProductsClient
+@inject ICategoriesClient CategoriesClient
+@inject ICampaignsClient CampaignsClient
+@inject ICustomersClient CustomersClient
+@inject IContactsClient ContactsClient
+
+@inject NavigationManager NavigationManager
+@inject IMapper Mapper
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Create discount</h1>
+</div>
+
+<EditForm Model="@form" OnValidSubmit="Submit">
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="name">Name</label>
+        <InputText name="name" class="form-control" @bind-Value="@form.Name"></InputText>
+    </div>
+
+    <div class="form-group">
+        <label for="discountRate">Discount Code</label>
+        <InputText name="discountCode" class="form-control" @bind-Value="@form.DiscountCode"></InputText>
+    </div>
+
+    <div class="form-group">
+        <label for="description">Description</label>
+        <InputTextArea name="description" class="form-control" @bind-Value="@form.Description"></InputTextArea>
+    </div>
+
+    <div class="form-group">
+        <label for="campaign">Campaign</label>
+        <InputSelectNumber name="campaign" class="form-control" @bind-Value="@form.CampaignId">
+            @if (campaigns != null)
+            {
+                @foreach (var campaign in campaigns)
+                {
+                    <option value="@campaign.Id">@campaign.Name</option>}}
+        </InputSelectNumber>
+    </div>
+
+    <div class="form-group">
+        <label for="category">Category</label>
+        <InputSelectNumber T="int?" name="category" class="form-control" ValueExpression="() => form.ProductCategoryId" ValueChanged="(value) => CategoryChanged(value)">
+            @if (categories != null)
+            {
+                @foreach (var category in categories)
+                {
+                    <option value="@category.Id">@category.Name</option>}}
+        </InputSelectNumber>
+    </div>
+
+    <div class="form-group">
+        <label for="product">Product</label>
+        <InputSelectNumber T="int?" name="product" class="form-control" ValueExpression="() => form.ProductId" ValueChanged="(value) => ProductChanged(value)">
+            @if (products != null)
+            {
+                @foreach (var product in products)
+                {
+                    <option value="@product.Id">@product.Name</option>}}
+        </InputSelectNumber>
+    </div>
+
+    <div class="form-group">
+        <label for="productVariant">Variant</label>
+        <InputSelectNumber name="productVariant" class="form-control" @bind-Value="@form.ProductVariantId">
+            @if (productVariants != null)
+            {
+                @foreach (var productVariant in productVariants)
+                {
+                    <option value="@productVariant.Id">@productVariant.Name</option>}}
+        </InputSelectNumber>
+    </div>
+
+    <div class="form-group">
+        <label for="customer">Customer</label>
+        <InputSelectNumber name="customer" class="form-control" @bind-Value="@form.PersonId">
+            @if (customers != null)
+            {
+                @foreach (var customer in customers)
+                {
+                    <option value="@customer.Id">@customer.FirstName @customer.LastName</option>}}
+        </InputSelectNumber>
+    </div>
+
+    <div class="form-group">
+        <label for="customer">Contact</label>
+        <InputSelectNumber name="customer" class="form-control" @bind-Value="@form.ContactId">
+            @if (contacts != null)
+            {
+                @foreach (var contact in contacts)
+                {
+                    <option value="@contact.Id">@contact.FirstName @contact.LastName</option>}}
+        </InputSelectNumber>
+    </div>
+
+    <div class="form-group">
+        <label for="priceAmount">Fixed Price</label>
+        <InputNumber name="priceAmount" class="form-control" @bind-Value="@form.FixedPrice"></InputNumber>
+    </div>
+
+    <div class="form-group">
+        <label for="discountAmount">Discount (Amount)</label>
+        <InputNumber name="discountAmount" class="form-control" @bind-Value="@form.DiscountAmount"></InputNumber>
+    </div>
+
+    <div class="form-group">
+        <label for="discountRate">Discount (%)</label>
+        <InputNumber name="discountRate" class="form-control" @bind-Value="@form.DiscountRate"></InputNumber>
+    </div>
+
+    <button class="btn btn-primary">Create</button>
+</EditForm>
+
+@code
+{
+    CreateDiscountFormViewModel form = new CreateDiscountFormViewModel();
+
+    IEnumerable<Category>? categories = null;
+    IEnumerable<Product>? products = null;
+    IEnumerable<ProductVariant>? productVariants = null;
+    IEnumerable<CampaignShort>? campaigns = null;
+    IEnumerable<Customer>? customers = null;
+    IEnumerable<Contact>? contacts = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await CategoriesClient.GetCategoriesAsync();
+        products = await ProductsClient.GetProductsAsync(null);
+        productVariants = await ProductsClient.GetProductVariantsAsync(form.ProductId.GetValueOrDefault());
+        campaigns = await CampaignsClient.GetCampaignsAsync();
+        customers = await CustomersClient.GetCustomersAsync();
+        contacts = await ContactsClient.GetContactsAsync();
+
+        form.ProductId = products.FirstOrDefault()?.Id;
+    }
+
+    async Task CategoryChanged(int? categoryId)
+    {
+        form.ProductCategoryId = categoryId.GetValueOrDefault();
+        products = await ProductsClient.GetProductsAsync(categoryId);
+    }
+
+    async Task ProductChanged(int? productId)
+    {
+        form.ProductId = productId.GetValueOrDefault();
+        productVariants = await ProductsClient.GetProductVariantsAsync(productId.GetValueOrDefault());
+    }
+
+    private async Task Submit()
+    {
+        await DiscountsClient.CreateDiscountAsync(
+            Mapper.Map<Client.CreateDiscount>(form));
+
+        NavigationManager.NavigateTo("/");
+    }
+}

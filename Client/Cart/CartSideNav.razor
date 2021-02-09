@@ -1,0 +1,125 @@
+﻿@inject App1.Client.Cart.ShoppingCartService ShoppingCart
+@implements IDisposable
+
+<div class="sidenav" style="@CssStyle">
+    <div class="container" style="width: 320px; padding-bottom: 9em">
+
+        <div class="row">
+            <a href="javascript:void(0)" class="closebtn float-left" style="padding: 17px;" @onclick="ToggleAsync"><i class="fa fa-times"></i></a>
+           
+            <h3 class="float-left"><i class="fa fa-shopping-basket"></i>
+                Basket
+                <span class="badge badge-secondary badge-pill">@ShoppingCart.Items.Sum(i => i.Quantity)</span>
+            </h3>
+        </div>
+
+        @if (ShoppingCart.Items != null)
+        {
+            @foreach (var item in ShoppingCart.Items)
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        @if (item.Discount != null)
+                        {
+                            <h6>@item.Discount.Name</h6>
+                            <small class="text-muted">@item.Price</small>
+                        }
+                        else if (item.ProductVariant != null)
+                        {
+                            @*<div class="card-img">
+                                <img alt="Thumbnail" style="height: 225px; display: block;" src="/images/@item.Product.Images.FirstOrDefault()?.ImageId" data-holder-rendered="true">
+                            </div>*@
+                            <h6><a href="/products/@item.Product.Id">@item.Product.Name</a></h6>
+                            <p>@item.ProductVariant.Name</p>
+                            <small class="text-muted">
+                                @item.ProductVariant.Price              
+                            </small>
+                        }
+                        else
+                        {
+                            <h6><a href="/products/@item.Product.Id">@item.Product.Name</a></h6>
+                            <small class="text-muted">
+                                <PriceDisplay Price="@item.Price"
+                                              CompareAtPrice="@item.Product.CompareAtPrice" />
+                            </small>
+                        }
+
+                    <div class="container mt-2">
+                        <div class="row">
+                            @if (item.Discount == null)
+                            {
+                                <div>
+                                    <InputQuantity MinValue="0" Value="item.Quantity" ValueChanged="async (v) => { await ShoppingCart.UpdateItemQuantityAsync(item.Id, v); item.Quantity = v; StateHasChanged();  }" />
+                                </div>
+                            }
+                            <div>
+                                <button class="btn btn-sm btn-outline-secondary" @onclick="async () => await ShoppingCart.RemoveItemAsync(item.Id)"><i class="fa fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <div class="p-4" style="
+        position: fixed;
+        bottom: 0;
+        background-color: white;
+        border-top: 1px solid #6c757d54;
+        width: 350px; z-index: 9999">
+        <p><b>Total:</b> @total SEK</p>
+
+        <a class="btn btn-primary" href="/checkout"> Check out</a>
+        <button class="btn btn-outline-secondary" @onclick="Clear"><i class="fa fa-trash"></i> Clear</button>
+    </div>
+</div>
+
+@code {
+    bool isInitialized = false;
+
+    decimal subtotal = 0;
+    decimal total = 0;
+
+    public string CssStyle => IsOpen ? "width: 350px;" : "width: -10;";
+
+    [Parameter]
+    public bool IsOpen { get; set; }
+
+    protected override void OnInitialized()
+    {
+        ShoppingCart.CartUpdated += OnCartUpdated;
+    }
+
+    public async Task ToggleAsync()
+    {
+        IsOpen = !IsOpen;
+
+        StateHasChanged();
+    }
+
+    private async Task Clear()
+    {
+        await ShoppingCart.ClearAsync();
+
+        StateHasChanged();
+    }
+
+    private async void OnCartUpdated(object sender, EventArgs eventArgs)
+    {
+        if (ShoppingCart.Items.Count() == 0)
+        {
+            IsOpen = false;
+        }
+
+        (total, subtotal) = await ShoppingCart.GetPriceAsync();
+
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        ShoppingCart.CartUpdated -= OnCartUpdated;
+    }
+}

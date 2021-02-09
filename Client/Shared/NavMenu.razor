@@ -1,0 +1,57 @@
+﻿@using App1.Client.Cart
+
+<CartSideNav @ref="cartSideNav"></CartSideNav>
+
+<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark shadow">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            @*<img height="24" src="/images/logo.png" />*@
+            <strong>Joe's Coffee</strong>
+        </a>
+        <span class="navbar-toggler d-md-none" href="cart" @onclick="ToggleCart">
+            <ShoppingCartDisplay />
+        </span>
+        <button class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="@NavMenuCssClass navbar-collapse" @onclick="ToggleNavMenu">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                        Home
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="/admin">
+                        Administration
+                    </NavLink>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item px-3">
+                    <span class="nav-link" href="cart" @onclick="ToggleCart">
+                        <ShoppingCartDisplay />
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : string.Empty;
+
+    CartSideNav cartSideNav = null!;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private async Task ToggleCart()
+    {
+        await cartSideNav.ToggleAsync();
+    }
+}

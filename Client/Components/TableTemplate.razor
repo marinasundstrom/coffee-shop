@@ -1,0 +1,42 @@
+﻿@typeparam TItem
+
+<div class="table-responsive">
+    <table class="table @CssClasses" @attributes="AdditionalAttributes">
+        <thead>
+            <tr>@TableHeader</tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Items)
+            {
+                <tr style="@(OnRowClicked.HasDelegate ? "cursor: pointer" : string.Empty)" @onclick="async () => await OnRowClicked.InvokeAsync(item)">@RowTemplate(item)</tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>@TableFooter</tr>
+        </tfoot>
+    </table>
+</div>
+
+
+@code {
+    [Parameter]
+    public RenderFragment TableHeader { get; set; } = null!;
+
+    [Parameter]
+    public RenderFragment<TItem> RowTemplate { get; set; } = null!;
+
+    [Parameter]
+    public RenderFragment TableFooter { get; set; } = null!;
+
+    [Parameter]
+    public IReadOnlyList<TItem> Items { get; set; } = null!;
+
+    [Parameter]
+    public EventCallback<TItem> OnRowClicked { get; set; }
+
+    [Parameter]
+    public string CssClasses { get; set; } = null!;
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IDictionary<string, object> AdditionalAttributes { get; set; } = null!;
+}

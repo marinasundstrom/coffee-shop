@@ -1,0 +1,42 @@
+﻿@page "/admin/categories"
+@layout AdminLayout
+@inject ICategoriesClient CategoriesClient
+@inject NavigationManager NavigationManager
+
+@if (categories != null)
+{
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Categories</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group mr-2">
+                <a class="btn btn-sm btn-outline-secondary" href="/admin/categories/create">
+                    <i class="fa fa-plus"></i> New category
+                </a>
+            </div>
+        </div>
+    </div>
+        <TableTemplate TItem="Category" Items="categories.ToList().AsReadOnly()" OnRowClicked="OnRowClicked">
+            <TableHeader>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+            </TableHeader>
+            <RowTemplate>
+                <td>@context.Id</td>
+                <td>@context.Name</td>
+                <td>@context.Description</td>
+            </RowTemplate>
+        </TableTemplate>
+}
+
+@code { IEnumerable<Category>? categories = null;
+
+            protected override async Task OnInitializedAsync()
+            {
+                categories = await CategoriesClient.GetCategoriesAsync();
+            }
+
+            private void OnRowClicked(Category category)
+            {
+                NavigationManager.NavigateTo($"/Admin/Categories/{category.Id}");
+            } }

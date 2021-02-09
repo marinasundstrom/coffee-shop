@@ -1,0 +1,35 @@
+﻿@using System.Globalization 
+
+@if (Price == 0)
+{
+    <span style="color: red; font-weight: bold">Free</span>
+}
+else
+{
+    @if (CompareAtPrice == null)
+    {
+        <text>@FormatPrice(Price)</text>
+    }
+    else
+    {
+        <span style="color: red; margin-right: 10px; font-weight: bold">@FormatPrice(Price)</span>
+    }
+}
+@if (CompareAtPrice != null)
+{
+    <span style="text-decoration: line-through; @(Big ? "font-size: 24px;" : "font-size: 14px")">@FormatPrice(CompareAtPrice.GetValueOrDefault())</span>
+}
+
+@code {
+    [Parameter]
+    public decimal Price { get; set; }
+
+    [Parameter]
+    public decimal? CompareAtPrice { get; set; }
+
+    [Parameter]
+    public Func<decimal, string> FormatPrice { get; set; } = (price) => price.ToString("c", CultureInfo.GetCultureInfo("sv-SE"));
+
+    [Parameter]
+    public bool Big { get; set; }
+}

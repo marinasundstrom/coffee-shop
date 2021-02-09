@@ -1,0 +1,141 @@
+﻿@page "/products/{Id}"
+@inject IProductsClient ProductsClient
+@inject App1.Client.Cart.ShoppingCartService ShoppingCart
+
+@if (product != null)
+{
+    <Title>@product.Name - @Site.Name</Title>
+
+    <div class="card">
+        <div class="card-body">
+            <h1>@product.Name</h1>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <img alt="Thumbnail" style="width: 250px; display: block;" src="/images/@product.Images.FirstOrDefault()?.ImageId" data-holder-rendered="true">
+                </div>
+                <div class="col-md-8">
+                    @if (product.Price != null)
+                    {
+                        <div class="mt-2">
+                            <p style="font-size: 32px;">
+                                <PriceDisplay 
+                                    Price="@product.Price" 
+                                    CompareAtPrice="@product.CompareAtPrice" Big="true" />
+                            </p>
+                        </div>
+                    }
+
+                    <p>@product.Description</p>
+
+                    <div class="mt-2">
+                        @if (product?.Variants?.Count > 0)
+                        {
+                            <div class="form-group">
+                                <label>@product.VariantsTitle</label>
+                                <select class="form-control" value="@selectedVariantId" @onchange="@((e) => selectedVariantId = int.Parse(e.Value.ToString()))">
+                                    @foreach (var variant in product.Variants)
+                                    {
+                                        <option value="@variant.Id">@variant.Name (@variant?.Price)</option>
+                                    }
+                                </select>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="container">
+                        <div class="row">
+                            <div>
+                                <InputQuantity MinValue="1" @bind-Value="quantity" />
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-sm btn-outline-secondary mr-2" @onclick="async () => { await AddProductToCart(product!, selectedVariantId); hasAddedToCart = true; }" @onclick:preventDefault><i class="fa fa-shopping-basket"></i> Add to basket</button>
+                                @if (hasAddedToCart)
+                                {
+                                    <a class="btn btn-sm btn-primary animated fadeInRight" href="/checkout"><i class="fa fa-shopping-basket"></i> Check out</a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+<TabSet class="mt-4">
+
+    <Tab Title="Specification">
+        <div class="container pt-4">
+            @if (attributes != null && attributes.Count() > 0)
+            {
+                <div class="row">
+                    <div class="col">
+                        <table class="table table-sm table-striped">
+                            <tbody>
+                                @foreach (var pAttribute in attributes)
+                                {
+                                    <tr>
+                                        <th>@pAttribute.Name</th>
+                                        <td>
+                                            @if (pAttribute is ProductStringAttribute a)
+                                            {
+                                                @a.Value
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col">
+
+                    </div>
+                </div>
+            }
+        </div>
+    </Tab>
+
+    <Tab Title="Reviews">
+        <div class="container py-4">
+            <p>Test</p>
+        </div>
+    </Tab>
+</TabSet>
+
+
+@code {
+    Product? product = null;
+    int quantity = 1;
+    int? selectedVariantId = null;
+    IEnumerable<ProductAttribute>? attributes = null;
+    private bool hasAddedToCart = false;
+
+    [Parameter]
+    public string? Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(Id))
+        {
+            product = await ProductsClient.GetProductAsync(int.Parse(Id));
+
+            selectedVariantId = product.Variants.FirstOrDefault()?.Id ?? null;
+
+            attributes = await ProductsClient.GetProductAttributesAsync(int.Parse(Id));
+        }
+    }
+
+    private async Task AddProductToCart(Product product, int? variantId)
+    {
+        await ShoppingCart.AddItemAsync(product.Id, variantId, null, null, quantity);
+
+        quantity = 1;
+    }
+}

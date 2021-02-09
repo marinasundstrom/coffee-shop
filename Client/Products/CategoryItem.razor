@@ -1,0 +1,22 @@
+﻿<option value="@Category.Id">@GetCategoryDisplayName(Category.Name)</option>
+
+@if (Category.ChildCategories != null)
+{
+    @foreach (var category in Category.ChildCategories)
+    {
+        <CategoryItem Category="category" Level="@(Level + 1)"></CategoryItem>
+    }
+}
+
+@code {
+    [Parameter]
+    public Category Category { get; set; } = null!;
+
+    [Parameter]
+    public int Level { get; set; }
+
+    private string GetCategoryDisplayName(string name)
+    {
+        return /*"-" + string.Concat(Enumerable.Repeat("\t", Level * 4)) + */ name;
+    }
+}

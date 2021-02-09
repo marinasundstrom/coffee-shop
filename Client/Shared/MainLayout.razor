@@ -1,0 +1,36 @@
+@inherits LayoutComponentBase
+@using App1.Client.Cart
+@inject App1.Client.Cart.ShoppingCartService ShoppingCart
+
+<ScrollToTopButton />
+
+<header>
+    <NavMenu />
+</header>
+
+<main role="main" class="container">
+    @Body
+
+    <footer class="my-5 text-muted text-center text-small">
+        <p class="mb-1">&copy; @DateTime.Now.Year Company Name</p>
+        <ul class="list-inline">
+            <li class="list-inline-item"><a href="#">Privacy</a></li>
+            <li class="list-inline-item"><a href="#">Terms</a></li>
+            <li class="list-inline-item"><a href="#">Support</a></li>
+        </ul>
+    </footer>
+</main>
+
+@code 
+{     
+    private bool isInitialized = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!isInitialized)
+        {
+            await ShoppingCart.InitializeAsync();
+            isInitialized = true;
+        }
+    }
+}

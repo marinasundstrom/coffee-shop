@@ -1,0 +1,35 @@
+﻿@page "/admin/customers"
+@layout AdminLayout
+@inject ICustomersClient CustomersClient
+
+
+@if (customers != null)
+{
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Customers</h1>
+</div>
+                <TableTemplate Items="customers.ToList().AsReadOnly()">
+                    <TableHeader>
+                        <th>ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Address</th>
+                    </TableHeader>
+                    <RowTemplate>
+                        <td>@context.Id</td>
+                        <td>@context.FirstName</td>
+                        <td>@context.LastName</td>
+                        <td>@context.EmailAddress</td>
+                        <td>@context.PhoneNumber</td>
+                        <td>@context.BillingAddress.StreetAddress @context.BillingAddress.StreetNumber, @context.BillingAddress.City @context.BillingAddress.Country</td>
+                    </RowTemplate>
+                </TableTemplate>}
+
+@code { IEnumerable<Customer>? customers = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        customers = await CustomersClient.GetCustomersAsync();
+    } }

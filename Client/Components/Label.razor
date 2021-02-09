@@ -1,0 +1,72 @@
+﻿@using System.Reflection
+@using System.Linq.Expressions;
+@using System.ComponentModel.DataAnnotations;
+@using System.Linq;
+@using System.Resources;
+@using System.Globalization;
+
+@typeparam T
+
+@if (ChildContent == null)
+{
+    <label @attributes="AdditionalAttributes">@label</label>
+}
+else
+{
+    <label @attributes="AdditionalAttributes">
+        @label
+        @ChildContent
+    </label>
+}
+
+@code {
+    [Parameter] public Expression<Func<T>> For { get; set; } = null!;
+    [Parameter] public RenderFragment ChildContent { get; set; } = null!;
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IDictionary<string, object>? AdditionalAttributes { get; set; } = null!;
+
+    private string label => GetDisplayName();
+
+    private string GetDisplayName()
+    {
+        var expression = (MemberExpression)For.Body;
+        var value = expression.Member.GetCustomAttribute(typeof(DisplayAttribute), true) as DisplayAttribute;
+        if (value == null)
+        {
+            var metaData = expression.Member.DeclaringType.GetCustomAttribute(typeof(MetadataTypeAttribute), true) as MetadataTypeAttribute;
+            if (metaData != null)
+            {
+                var mdProp = metaData.MetadataClassType.GetProperties()
+                         .ToList()
+                         .Where(p => p.Name == expression.Member.Name)
+                         .FirstOrDefault();
+                if (mdProp != null)
+                {
+                    var mPropAttr = mdProp.GetCustomAttribute(typeof(DisplayAttribute)) as DisplayAttribute;
+                    if (mPropAttr != null)
+                    {
+                        if (mPropAttr.ResourceType != null)
+                        {
+                            return GetDisplayNameFromResource(mPropAttr);
+                        }
+                        //return mPropAttr.Name;
+                    }
+                }
+            }
+
+        }
+        if (value?.ResourceType != null)
+        {
+            return GetDisplayNameFromResource(value);
+        }
+        return value?.Name ?? expression.Member.Name ?? "";
+    }
+
+    private static string GetDisplayNameFromResource(DisplayAttribute mPropAttr)
+    {
+        ResourceManager rm = new ResourceManager(mPropAttr.ResourceType);
+        var dispName = rm.GetString(mPropAttr.Name, CultureInfo.CurrentCulture);
+        return dispName;
+    }
+}

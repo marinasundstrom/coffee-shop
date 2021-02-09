@@ -1,0 +1,74 @@
+﻿@page "/products"
+@inject IProductsClient ProductsClient
+@inject App1.Client.Cart.ShoppingCartService ShoppingCart
+@inject ICategoriesClient CategoriesClient
+
+<Title>Products - @Site.Name</Title>
+
+    <h1>Products</h1>
+
+    @if (items != null)
+    {
+        if (items.Any())
+        {
+            <div class="row container">
+                <div class="form-group row">
+                    <label for="category" class="col-sm-4 col-form-label col-form-label-sm">Category</label>
+                    <div class="col-sm-8">
+                        <select class="form-control form-control-sm" id="category" value="@(categoryId?.ToString() ?? "1")" @onchange="OnCategoryChanged">
+                            @if (category != null)
+                            {
+                                <CategoryItem Category="category" Level="0"></CategoryItem>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                @foreach (var item in items)
+                {
+                    <div class="col-md-4">
+                        <ProductCard Model="@item" OnPurchaseClick="() => AddProductToCart(item.Product, item.SelectedVariantId)"></ProductCard>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p>There are no products yet :(</p>
+        }
+    }
+
+@code {
+    int? categoryId = null;
+    Category? category;
+    IEnumerable<ProductViewModel>? items;
+
+    protected override async Task OnInitializedAsync()
+    {
+        category = await CategoriesClient.GetCategoryAsync(1);
+
+        await LoadProductsAsync();
+    }
+
+    private async Task LoadProductsAsync()
+    {
+        items = (await ProductsClient.GetProductsAsync(categoryId)).Select(p =>
+        {
+            var vm = new ProductViewModel() { Product = p };
+            vm.SelectedVariantId = p.Variants.FirstOrDefault()?.Id ?? null;
+            return vm;
+        });
+    }
+
+    private async Task AddProductToCart(Product product, int? variantId)
+    {
+        await ShoppingCart.AddItemAsync(product.Id, variantId, null, null, 1);
+    }
+
+    private async Task OnCategoryChanged(ChangeEventArgs e)
+    {
+        categoryId = (!Object.Equals(e.Value, "All") ? int.Parse(e.Value.ToString()) : (int?)null);
+        await LoadProductsAsync();
+    }
+}

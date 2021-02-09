@@ -1,0 +1,45 @@
+﻿@using UIInterfaces
+@implements ITab
+
+<li>
+    <a @onclick="Activate" class="nav-link @TitleCssClass" role="button">
+        @Title
+    </a>
+</li>
+
+@code {
+    [CascadingParameter]
+    public TabSet ContainerTabSet { get; set; } = null!;
+
+    [Parameter]
+    public string Title { get; set; } = null!;
+
+    [Parameter]
+    public EventCallback OnActivated { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } = null!;
+
+    private string TitleCssClass => ContainerTabSet.ActiveTab == this ? "active" : string.Empty;
+
+    protected override async void OnInitialized()
+    {
+        if(ContainerTabSet.AddTab(this))
+        {
+            if (OnActivated.HasDelegate)
+            {
+                await OnActivated.InvokeAsync(null);
+            }
+        }
+    }
+
+    private async void Activate()
+    {
+        ContainerTabSet.SetActivateTab(this);
+
+        if (OnActivated.HasDelegate)
+        {
+            await OnActivated.InvokeAsync(null);
+        }
+    }
+}

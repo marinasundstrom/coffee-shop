@@ -1,0 +1,35 @@
+﻿@page "/admin/contacts"
+@layout AdminLayout
+@inject IContactsClient ContactsClient
+
+@if (contacts != null)
+{
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Contacts</h1>
+                </div>
+
+                <TableTemplate Items="contacts.ToList().AsReadOnly()">
+                    <TableHeader>
+                        <th>ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Address</th>
+                    </TableHeader>
+                    <RowTemplate>
+                        <td>@context.Id</td>
+                        <td>@context.FirstName</td>
+                        <td>@context.LastName</td>
+                        <td>@context.EmailAddress</td>
+                        <td>@context.PhoneNumber</td>
+                        <td>@context.Address.StreetAddress @context.Address.StreetNumber, @context.Address.City @context.Address.Country</td>
+                    </RowTemplate>
+                </TableTemplate>}
+
+@code { IEnumerable<Contact>? contacts = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        contacts = await ContactsClient.GetContactsAsync();
+    } }

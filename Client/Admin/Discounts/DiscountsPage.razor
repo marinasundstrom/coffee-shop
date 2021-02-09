@@ -1,0 +1,40 @@
+﻿@page "/admin/discounts"
+@layout AdminLayout
+
+@inject IDiscountsClient DiscountsClient
+
+@if (disocunts != null)
+{
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Discounts</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group mr-2">
+                <a class="btn btn-sm btn-outline-secondary" href="/admin/discounts/create">
+                    <i class="fa fa-plus"></i> New discount
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <TableTemplate Items="disocunts.ToList().AsReadOnly()">
+        <TableHeader>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Description</th>
+        </TableHeader>
+        <RowTemplate>
+            <td>@context.Id</td>
+            <td>@context.Name</td>
+            <td>@context.Description</td>
+        </RowTemplate>
+    </TableTemplate>
+}
+
+@code {
+    IEnumerable<Discount>? disocunts = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        disocunts = await DiscountsClient.GetDiscountsAsync(null);
+    }
+}

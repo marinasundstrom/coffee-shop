@@ -1,0 +1,37 @@
+﻿@page "/admin/products"
+@layout AdminLayout
+@inject IProductsClient ProductsClient
+
+@if (products != null)
+{
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Products</h1>
+    </div>
+
+        <TableTemplate CssClasses="table-hover" Items="products.ToList().AsReadOnly()" OnRowClicked="(Product x) => Console.WriteLine(x)">
+            <TableHeader>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Has variants</th>
+            </TableHeader>
+            <RowTemplate>
+                <td>@context.Id</td>
+                <td>@context.Name</td>
+                <td>@context.Description</td>
+                <td>@context.Category?.Name</td>
+                <td>@context!.Price</td>
+                <td>@(context!.Variants.Any() ? "Yes" : "No")</td>
+            </RowTemplate>
+        </TableTemplate>
+}
+
+@code { int? categoryId = null;
+            IEnumerable<Product>? products = null;
+
+            protected override async Task OnInitializedAsync()
+            {
+                products = await ProductsClient.GetProductsAsync(categoryId);
+            } }

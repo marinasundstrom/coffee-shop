@@ -1,0 +1,33 @@
+﻿@page "/admin/sources"
+@layout AdminLayout
+@inject ISourcesClient SourcesClient
+
+
+@if (sources != null)
+{
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Sources</h1>
+    </div>
+
+    <TableTemplate Items="sources.ToList().AsReadOnly()">
+        <TableHeader>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Description</th>
+        </TableHeader>
+        <RowTemplate>
+            <td>@context.Id</td>
+            <td>@context.Name</td>
+            <td>@context.Description</td>
+        </RowTemplate>
+    </TableTemplate>
+}
+
+@code {
+    IEnumerable<Source>? sources = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        sources = await SourcesClient.GetSourcesAsync();
+    }
+}

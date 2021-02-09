@@ -1,0 +1,96 @@
+﻿@page "/admin/categories/create"
+@page "/admin/categories/{id:int}"
+@layout AdminLayout
+@inject ICategoriesClient CategoriesClient
+@inject IMapper Mapper
+
+@if (form != null)
+{
+    @if (Id == null)
+    {
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">New category</h1>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Update category</h1>
+        </div>
+    }
+    <EditForm Model="@form" OnValidSubmit="OnSubmit">
+        <DataAnnotationsValidator />
+
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="name">Name</label>
+            <InputText name="name" class="form-control" @bind-Value="@form.Name"></InputText>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <InputTextArea name="description" class="form-control" @bind-Value="@form.Description"></InputTextArea>
+        </div>
+
+        @if (Id != 1)
+        {
+            <div class="form-group">
+                <label for="parent">Parent</label>
+                <InputSelectNumber name="parent" class="form-control" @bind-Value="@form.ParentCategoryId">
+                    @if (categories != null)
+                            {
+                        @foreach (var category in categories)
+                                {
+                            <option value="@category.Id">@category.Name</option>
+                                }
+                            }
+                </InputSelectNumber>
+            </div>
+        }
+
+        <button type="submit" class="btn btn-primary">
+            @if (Id == null)
+            {<text>Create</text>}
+        else
+        {<text>Update</text>}
+        </button>
+    </EditForm>
+}
+
+@code {
+    CategoryViewModel? form = null;
+    IEnumerable<Category>? categories = null;
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id != null)
+        {
+            var item = await CategoriesClient.GetCategoryAsync(Id.GetValueOrDefault());
+            form = Mapper.Map<CategoryViewModel>(item);
+        }
+        else
+        {
+            form = new CategoryViewModel();
+        }
+
+        categories = await CategoriesClient.GetCategoriesAsync();
+    }
+
+    private async Task OnSubmit()
+    {
+        if (Id == null)
+        {
+            var createCategory = Mapper.Map<CreateCategory>(form);
+            Id = await CategoriesClient.CreateCategoryAsync(createCategory);
+        }
+        else
+        {
+            var updateCategory = Mapper.Map<UpdateCategory>(form);
+            await CategoriesClient.UpdateCategoryAsync(Id.GetValueOrDefault(), updateCategory);
+        }
+    }
+}

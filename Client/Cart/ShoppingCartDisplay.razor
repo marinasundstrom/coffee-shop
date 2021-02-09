@@ -1,0 +1,28 @@
+﻿@inject App1.Client.Cart.ShoppingCartService ShoppingCart
+@implements IDisposable
+
+@if (isVisible)
+{
+    <span class="fa fa-shopping-basket" aria-hidden="true"></span>
+    <span class="badge badge-secondary badge-pill">@ShoppingCart.Items.Sum(i => i.Quantity)</span>
+}
+
+@code {
+    bool isVisible = false;
+
+    protected override void OnInitialized()
+    {
+        ShoppingCart.CartUpdated += OnCartUpdated;
+    }
+
+    private void OnCartUpdated(object sender, EventArgs eventArgs)
+    {
+        isVisible = ShoppingCart.Items.Count() > 0;
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        ShoppingCart.CartUpdated -= OnCartUpdated;
+    }
+}
