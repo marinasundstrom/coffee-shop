@@ -11,11 +11,11 @@
     {
         if (items.Any())
         {
-            <div class="row container">
-                <div class="form-group row">
+            <div class="row mb-4">
+                <div class="form-group">
                     <label for="category" class="col-sm-4 col-form-label col-form-label-sm">Category</label>
                     <div class="col-sm-8">
-                        <select class="form-control form-control-sm" id="category" value="@(categoryId?.ToString() ?? "1")" @onchange="OnCategoryChanged">
+                        <select class="form-select form-control-sm" id="category" value="@(categoryId?.ToString() ?? "1")" @onchange="OnCategoryChanged">
                             @if (category != null)
                             {
                                 <CategoryItem Category="category" Level="0"></CategoryItem>
