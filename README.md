@@ -6,12 +6,12 @@ Watch video [here](https://youtu.be/XGFvR9Gxtos). Screenshots below.
 
 ## Purpose of this project
 
-Learning: Design patterns, UI design, and designing Data model.
+Learning Design patterns, UI design, and designing Data model.
 Mostly just for fun. Learning Blazor.
 
-I chose to populate the site with coffee and pastries because I was thinking of the apps of popular coffee shops when designing the system - and I love coffee!
-
 Some came to influence work that I was doing at the time.
+
+I chose to populate the site with coffee and pastries because I was thinking of the apps of popular coffee shops when designing the system - and I love coffee!
 
 ## Features
 
