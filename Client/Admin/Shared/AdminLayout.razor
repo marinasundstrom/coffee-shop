@@ -1,13 +1,97 @@
 ﻿@inherits LayoutComponentBase
 
-<NavBar />
+<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">Administration</a>
+
+    <button class="navbar-toggler d-md-none collapsed" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="#">Sign out</a>
+        </li>
+    </ul>
+</header>
 
 <div class="container-fluid">
-  <div class="row">
-    <SideBar />
+    <div class="row">
+        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar @NavMenuCssClass" @onclick="ToggleNavMenu">
+            <div class="sidebar-sticky pt-3">
 
-    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-      @Body
-    </main>
-  </div>
+                <ul class="nav flex-column mb-2">
+                    <NavLink class="nav-link" href="admin">
+                        <i class="fa fa-home"></i> Dashboard
+                    </NavLink>
+                </ul>
+
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Products</span>
+                </h6>
+
+                <ul class="nav flex-column mb-2">
+                    <NavLink class="nav-link" href="admin/products">
+                        <i class="fa fa-shopping-cart"></i> Products
+                    </NavLink>
+                    <NavLink class="nav-link" href="admin/categories">
+                        <i class="fa fa-list-alt"></i> Categories
+                    </NavLink>
+                </ul>
+
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Marketing</span>
+                </h6>
+
+                <ul class="nav flex-column mb-2">
+                    <NavLink class="nav-link" href="admin/discounts">
+                        <i class="fa fa-shopping-cart"></i> Discounts
+                    </NavLink>
+                    <NavLink class="nav-link" href="admin/campaigns">
+                        <i class="fa fa-shopping-cart"></i> Campaigns
+                    </NavLink>
+                    <NavLink class="nav-link" href="admin/prospects">
+                        <i class="fa fa-shopping-cart"></i> Prospects
+                    </NavLink>
+                </ul>
+
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Customer Relations</span>
+                </h6>
+
+                <ul class="nav flex-column mb-2">
+                    <NavLink class="nav-link" href="admin/customers">
+                        <i class="fa fa-users"></i> Customers
+                    </NavLink>
+
+                </ul>
+            </div>
+        </nav>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                @Body
+        </main>
+
+    </div>
 </div>
+
+
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : string.Empty;
+
+    CartSideNav cartSideNav = null!;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private async Task ToggleCart()
+    {
+        await cartSideNav.ToggleAsync();
+    }
+}

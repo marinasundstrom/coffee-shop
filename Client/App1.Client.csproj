@@ -61,16 +61,6 @@
 	  <TypeScriptCompile Remove="Scripts\anchorLink.ts" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<WebpackInputs Remove="Scripts\anchorLink.ts" />
-		<WebpackInputs Remove="Styles\CartSideNav.scss" />
-		<WebpackInputs Remove="Styles\sidebar.scss" />
-		<WebpackInputs Remove="Styles\tabs.scss" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="Admin\Dashboard\" />
-	</ItemGroup>
 	<Target Name="EnsureNpmRestored" Condition="!Exists('node_modules')">
 		<Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
 		<Exec Command="npm install" />

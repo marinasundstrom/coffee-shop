@@ -49,12 +49,16 @@
             </div>
         }
 
-        <button type="submit" class="btn btn-primary">
-            @if (Id == null)
-            {<text>Create</text>}
-        else
-        {<text>Update</text>}
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">
+                @if (Id == null)
+                {<text>Create</text>}
+            else
+            {<text>Update</text>}
         </button>
+
+    </div>
+
     </EditForm>
 }
 
