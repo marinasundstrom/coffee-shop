@@ -1,7 +1,7 @@
 ﻿@typeparam TItem
 
 <div class="table-responsive">
-    <table class="table @CssClasses" @attributes="AdditionalAttributes">
+    <table class="table table-striped @(OnRowClicked.HasDelegate ? "table-hover": null) @CssClasses" @attributes="AdditionalAttributes">
         <thead>
             <tr>@TableHeader</tr>
         </thead>
